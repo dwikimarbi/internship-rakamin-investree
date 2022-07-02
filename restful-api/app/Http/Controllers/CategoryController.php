@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\category;
 use Illuminate\Http\Request;
+use App\Http\Requests\CategoryRequest;
 
 class CategoryController extends Controller
 {
@@ -12,74 +13,59 @@ class CategoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(): \Illuminate\Http\JsonResponse
     {
-        //
+        try {
+            $categories = auth()->user()->category()->get();
+            return $this->success($categories, "Success fetch data");
+        } catch (\Exception $e) {
+
+            return $this->error("Error fetch data", $e->getMessage());
+        }
     }
+
 
     /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(CategoryRequest $request): \Illuminate\Http\JsonResponse
     {
-        //
+        try {
+            $user = auth()->user();
+            $response = $user
+                ->category()
+                ->create($request->all());
+
+            return $this->success($response, "Success submit data");
+        } catch (\Exception $e) {
+
+            return $this->error("Error submit data", $e->getMessage());
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function update(CategoryRequest $request, Category $category): \Illuminate\Http\JsonResponse
     {
-        //
+        try {
+            $category->update($request->all());
+
+            return $this->success($category, "Success update data");
+        } catch (\Exception $e) {
+
+            return $this->error("Error update data", $e->getMessage());
+        }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\category  $category
-     * @return \Illuminate\Http\Response
-     */
-    public function show(category $category)
+    public function destroy(Category $category): \Illuminate\Http\JsonResponse
     {
-        //
-    }
+        try {
+            $category->delete();
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\category  $category
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(category $category)
-    {
-        //
-    }
+            return $this->success([], "Success delete data");
+        } catch (\Exception $e) {
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\category  $category
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, category $category)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\category  $category
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(category $category)
-    {
-        //
+            return $this->error("Error delete data", $e->getMessage());
+        }
     }
 }
